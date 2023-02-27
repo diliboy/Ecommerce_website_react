@@ -12,6 +12,9 @@ import { useSelector } from 'react-redux';
 
 import useAuth from '../../custom-hooks/useAuth';
 import { Link } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
+import {auth} from '../../firebase.config';
+import {toast} from 'react-toastify';
 
 const nav_links =[
   {
@@ -26,14 +29,14 @@ const nav_links =[
     path:'cart', 
     display: 'Cart'
   }
-]
+];
 
 const Header = () => {
 
   const headerRef = useRef(null);
   const totalQuantity = useSelector(state=> state.cart.totalQuantity);
 
-  // const profileActionRef = useRef(null);
+  const profileActionRef = useRef(null)
 
   const menuRef = useRef(null);
   const navigate = useNavigate();
@@ -47,6 +50,15 @@ const Header = () => {
       }else{
         headerRef.current.classList.remove('sticky_header');
       }
+    });
+  };
+
+  const logout = ()=>{
+    signOut(auth).then(()=>{
+      toast.success('Logged out');
+      navigate('/home');
+    }).catch(err=>{
+      toast.error(err.message);
     })
   }
 
@@ -61,7 +73,8 @@ const Header = () => {
     navigate('/cart');
   };
 
-  // const toggleProfileActions = ()=> profileActionRef.current.classList.toggle('show_profileActions')
+  const toggleProfileActions = ()=> profileActionRef.current.classList
+  .toggle('show_profileActions')
 
   return (
     <header className='header' ref={headerRef}>
@@ -107,20 +120,20 @@ const Header = () => {
               <div className='profile'>
                 <motion.img whileTap={{ scale: 1.2 }} 
                 src={ currentUser ? currentUser.photoURL: user_icon} 
-                alt="" 
-                // onClick={toggleProfileActions} 
-                />
+                alt="" onClick={toggleProfileActions} />
+                
 
-                <div className="profile_actions" 
-                // ref={profileActionRef}
-                // onClick={toggleProfileActions}
-                >
+                <div 
+                className='profile_actions' ref={profileActionRef}
+                onClick = {toggleProfileActions} >
                   {
-                    currentUser ? <span>Logout</span> : <div>
+                    currentUser ? (<span onClick={logout}>Logout</span> 
+                    ) : ( 
+                    <div className='d-flex align-items-center justify-content-center flex-column'>
                       <Link to='/signup'>Signup</Link>
                       <Link to='/login'>Login</Link>
                     </div>
-                  }
+                  )}
                 </div>
                 
               </div>

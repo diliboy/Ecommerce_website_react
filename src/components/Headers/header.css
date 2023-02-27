@@ -104,9 +104,9 @@
     cursor: pointer;
 }
 
-/* .show_profileActions{
-    display: block;
-} */
+.show_profileActions{
+    display: block !important;
+}
 
 .mobile_menu{
     font-size: 1.3rem;
