@@ -9,11 +9,17 @@ import { useDispatch } from 'react-redux';
 import { cartActions } from '../redux/slices/cartSlice';
 import {toast} from 'react-toastify';
 
+import { db } from '../firebase.config';
+import { doc, getDoc } from 'firebase/firestore';
+import useGetData from '../custom-hooks/useGetData';
+
 import '../styles/product-details.css';
 
 import { motion } from 'framer-motion';
 
 const ProductDetails = () => {
+
+  const [product, setProduct] = useState({});
 
   const [tab, setTab] = useState('desc');
   const reviewUser = useRef('')
@@ -23,9 +29,35 @@ const ProductDetails = () => {
   const [ratings, setRatings] = useState(null);
   const { id } = useParams();
 
-  const product = products.find(item => item.id === id)
+  const {data: products} = useGetData('products');
 
-  const { imgUrl, productName, price, avgRating, reviews, description, shortDesc, category } = product;
+  // const product = products.find(item => item.id === id)
+
+  const docRef = doc(db, 'products', id);
+
+  useEffect(()=> {
+    const getProduct = async()=>{
+      const docSnap = await getDoc(docRef)
+
+      if(docSnap.exists()){
+        setProduct(docSnap.data());
+      }else{
+        console.log("no product!")
+      }
+    }
+    getProduct();
+  },[])
+
+  const { 
+    imgUrl,
+    productName, 
+    price, 
+    // avgRating, 
+    // reviews, 
+    description, 
+    shortDesc, 
+    category 
+  } = product;
 
   const relatedProducts = products.filter(item=> item.category===category)
 
@@ -81,7 +113,7 @@ const ProductDetails = () => {
                   <span ><i class="ri-star-half-line"></i></span>
                 </div>
 
-                <p>(<span>{avgRating}</span> ratings)</p>
+                {/* <p>(<span>{avgRating}</span> ratings)</p> */}
               </div>
 
               <div className='d-flex align-item-center gap-5'>
@@ -104,7 +136,9 @@ const ProductDetails = () => {
                 <h6 className = {`${tab==='desc' ? 'active_tab' : ""}`}
                 onClick={()=> setTab('desc')}>Description</h6>
                 <h6 className = {`${tab==='rev' ? 'active_tab' : ""}`}
-                onClick={()=> setTab('rev')}>Reviews ({reviews.length})</h6>
+                onClick={()=> setTab('rev')}>
+                  Reviews
+                  </h6>
               </div>
 
 
@@ -116,7 +150,7 @@ const ProductDetails = () => {
               ) : (
               <div className='product_review mt-5'>
                 <div className="review_wrapper">
-                  <ul>
+                  {/* <ul>
                     {
                       reviews.map((item, index)=>(
                         <li key={index} className='mb-4'>
@@ -125,7 +159,7 @@ const ProductDetails = () => {
                           <p>{item.text}</p></li>
                       ))
                     }
-                  </ul>
+                  </ul> */}
 
                   <div className="review_form">
                     <h4>Leave Your Experience</h4>
